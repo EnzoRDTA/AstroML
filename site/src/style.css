@@ -1546,36 +1546,55 @@ main {
 .pager {
   max-width: var(--container);
   margin: 0 auto;
-  padding: 72px var(--gutter) 64px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  padding: 64px var(--gutter) 0;
+  min-height: 70vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
 }
-.pager__link {
+.pager__next {
+  position: sticky;
+  top: calc(var(--topbar-h) + 30vh);
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 18px 20px;
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius);
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  color: var(--ink);
   text-decoration: none;
-  color: var(--star);
-  transition: border-color var(--dur) var(--ease);
-}
-.pager__link:hover {
-  border-color: var(--accent);
-}
-.pager__link--next {
-  text-align: right;
-  grid-column: 2;
+  opacity: calc(0.45 + var(--p) * 0.55);
 }
 .pager__dir {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--dust);
 }
 .pager__title {
-  font: 600 20px var(--sans);
-  font-stretch: 110%;
+  font: 600 clamp(26px, 5vw, 40px) var(--sans);
+  font-stretch: 112%;
+  letter-spacing: -0.01em;
+}
+.pager__bar {
+  width: 160px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--rule-strong);
+  overflow: hidden;
+  margin-top: 6px;
+}
+.pager__bar i {
+  display: block;
+  height: 100%;
+  width: calc(var(--p) * 100%);
+  background: var(--accent);
+}
+.pager__arrow {
+  font-size: 22px;
+  color: var(--accent);
+  transform: translateY(calc(var(--p) * 10px));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pager__arrow { animation: nudge 1.6s ease-in-out infinite; }
+  @keyframes nudge { 50% { translate: 0 5px; } }
 }
 
 /* ============================================================ legendas interativas */
@@ -2134,4 +2153,25 @@ input[type="range"]:focus-visible {
 .chart svg.earth,
 svg.earth {
   display: inline-block;
+}
+
+/* ---------------------------------------------------- tabela no celular */
+@media (max-width: 600px) {
+  .data-table--planets { font-size: 14px; }
+  .data-table--planets td,
+  .data-table--planets th { padding: 10px 10px; }
+  .data-table--planets tbody th,
+  .data-table--planets td:first-child,
+  .data-table--planets thead th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--deep);
+    min-width: 150px;
+    max-width: 160px;
+    font-size: 13px;
+    overflow-wrap: break-word;
+    box-shadow: 1px 0 0 var(--rule);
+  }
+  .pager { min-height: 60vh; padding-top: 40px; }
 }

@@ -478,6 +478,7 @@ export function initMeasure() {
   return {
     setData(next: Dataset) {
       d = next;
+      setToggle();
       tabs();
       panel();
     },

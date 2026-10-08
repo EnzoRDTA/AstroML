@@ -49,20 +49,44 @@ export function currentPage(): Page {
   return current ?? "inicio";
 }
 
+let shownAt = 0;
+let advancing = false;
+
 function renderPager(page: Page) {
   const pager = document.getElementById("pager")!;
   const i = PAGES.indexOf(page);
-  const prev = i > 0 ? PAGES[i - 1] : null;
   const next = i < PAGES.length - 1 ? PAGES[i + 1] : null;
-  const link = (p: Page, dir: "prev" | "next") =>
+  pager.hidden = !next;
+  if (!next) return pager.replaceChildren();
+  pager.replaceChildren(
     el(
       "a",
-      { href: p === "inicio" ? "#/" : `#/${p}`, class: `pager__link pager__link--${dir}` },
-      el("span", { class: "pager__dir" }, t(`pager.${dir}`)),
-      el("span", { class: "pager__title" }, t(TITLE_KEY[p])),
-    );
-  pager.replaceChildren(...(page === "inicio" ? [] : [prev ? link(prev, "prev") : el("span"), next ? link(next, "next") : el("span")]));
-  pager.hidden = page === "inicio";
+      { href: `#/${next}`, class: "pager__next" },
+      el("span", { class: "pager__dir" }, t("pager.scroll")),
+      el("span", { class: "pager__title" }, t(TITLE_KEY[next])),
+      el("span", { class: "pager__bar", "aria-hidden": "true" }, el("i")),
+      el("span", { class: "pager__arrow", "aria-hidden": "true" }, "↓"),
+    ),
+  );
+  pager.style.setProperty("--p", "0");
+}
+
+/** Rolar até o fim da página leva à próxima. */
+function onScroll() {
+  const pager = document.getElementById("pager")!;
+  if (pager.hidden || advancing || !current) return;
+  const r = pager.getBoundingClientRect();
+  const p = Math.max(0, Math.min(1, (innerHeight - r.top) / r.height));
+  pager.style.setProperty("--p", p.toFixed(3));
+  const atEnd = innerHeight + scrollY >= document.documentElement.scrollHeight - 4;
+  if (p > 0.97 && atEnd && performance.now() - shownAt > 700) {
+    const i = PAGES.indexOf(current);
+    advancing = true;
+    setTimeout(() => {
+      advancing = false;
+      location.hash = `#/${PAGES[i + 1]}`;
+    }, 180);
+  }
 }
 
 export function show(page: Page, userAction: boolean) {
@@ -85,6 +109,7 @@ export function show(page: Page, userAction: boolean) {
   const base = t("site.name");
   document.title = page === "inicio" ? `${base} | ${t("nav.home")}` : `${t(TITLE_KEY[page])} | ${base}`;
   if (changed) {
+    shownAt = performance.now();
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     if (userAction) {
       // leva o foco ao título da página, para leitores de tela e teclado
@@ -101,6 +126,7 @@ export function show(page: Page, userAction: boolean) {
 export function initRouter() {
   const initial = parse(location.hash) ?? "inicio";
   show(initial, false);
+  window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("hashchange", () => {
     const p = parse(location.hash);
     if (p) show(p, true);
