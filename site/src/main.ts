@@ -169,6 +169,7 @@ function renderAll() {
 
   state.redraws.push(() => hero?.redraw(), why.redraw, () => story?.redraw());
   earthify(document.body);
+  requestAnimationFrame(() => window.dispatchEvent(new Event("scroll")));
 }
 
 function initStoryObserver() {
@@ -182,7 +183,7 @@ function initStoryObserver() {
     if (graphic.offsetParent === null) return; // página escondida
     const mobile = window.innerWidth < 900;
     const g = graphic.getBoundingClientRect();
-    const anchor = mobile ? g.bottom + (window.innerHeight - g.bottom) * 0.3 : window.innerHeight * 0.5;
+    const anchor = mobile ? g.bottom + 40 : window.innerHeight * 0.5;
     let k = 0;
     steps.forEach((s, i) => {
       if (s.querySelector("p")!.getBoundingClientRect().top <= anchor) k = i;
@@ -192,6 +193,9 @@ function initStoryObserver() {
       steps.forEach((s, i) => s.classList.toggle("is-active", i === k));
       story?.go(k);
     }
+    const cap = document.getElementById("story-caption")!;
+    const html = `<span class="scrolly__count">${k + 1} / ${steps.length}</span>` + steps[k].querySelector("p")!.innerHTML;
+    if (cap.innerHTML !== html) cap.innerHTML = html;
   };
   const onScroll = () => {
     if (!ticking) {
@@ -249,3 +253,12 @@ async function main() {
 }
 
 main();
+
+// altura real da barra do topo (muda no celular), usada pelo gráfico fixo
+{
+  const bar = document.querySelector<HTMLElement>(".topbar");
+  const setH = () => bar && document.documentElement.style.setProperty("--topbar-h", `${bar.offsetHeight}px`);
+  setH();
+  addEventListener("resize", setH);
+  if (bar && "ResizeObserver" in window) new ResizeObserver(setH).observe(bar);
+}

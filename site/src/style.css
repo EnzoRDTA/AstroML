@@ -686,14 +686,15 @@ input[type="range"] {
   .scrolly__steps {
     grid-column: 1;
     grid-row: 2;
-    padding: 16px 0 45vh;
+    padding: 24px 0 50vh;
     position: relative;
     z-index: 1;
   }
   .step {
-    min-height: 55vh;
+    min-height: 75vh;
     align-items: flex-start;
   }
+  .step:first-child { min-height: 60vh; }
   .step p {
     background: var(--deep);
     border: 1px solid var(--rule);
@@ -701,10 +702,43 @@ input[type="range"] {
     border-radius: var(--radius);
     padding: 16px 18px;
     font-size: 17px;
+    color: var(--star);
+    opacity: 0.35;
+    transition: opacity 300ms var(--ease);
   }
   .step.is-active p {
+    opacity: 1;
     border-left-color: var(--accent);
   }
+}
+
+/* legenda do passo atual dentro do gráfico fixo (só no celular) */
+.scrolly__caption { display: none; }
+@media (max-width: 900px) {
+  .scrolly__caption {
+    display: block;
+    margin: 10px 0 4px;
+    padding: 12px 14px;
+    background: var(--deep);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--star);
+    min-height: 7.5em;
+  }
+  .scrolly__count {
+    display: block;
+    font-size: 12px;
+    color: var(--dust);
+    margin-bottom: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .scrolly__steps { padding: 0 0 20vh; }
+  .step { min-height: 65vh; }
+  .step:first-child { min-height: 40vh; }
+  .step p { visibility: hidden; }
 }
 
 /* ------------------------------------------------------ funil e regra */
