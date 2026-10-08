@@ -1,45 +1,222 @@
 {
-  "source": "Andrade (2026), Tabelas 9, 12, 13, 16, 19 e 20",
-  "cv": {
-    "mass_from_radius": [
-      {"model": "rf_ext", "rmse": 0.382, "frac": 0.393},
-      {"model": "gb_ext", "rmse": 0.385, "frac": 0.402},
-      {"model": "gb", "rmse": 0.404, "frac": 0.434},
-      {"model": "m4", "rmse": 0.404, "frac": 0.430},
-      {"model": "m3", "rmse": 0.408, "frac": 0.450},
-      {"model": "rf", "rmse": 0.412, "frac": 0.446},
-      {"model": "m1", "rmse": 0.437, "frac": 0.477},
-      {"model": "m2", "rmse": 0.439, "frac": 0.469}
-    ],
-    "radius_from_mass": [
-      {"model": "rf_ext", "rmse": 0.140, "frac": 0.121},
-      {"model": "gb_ext", "rmse": 0.141, "frac": 0.128},
-      {"model": "m4", "rmse": 0.151, "frac": 0.150},
-      {"model": "gb", "rmse": 0.152, "frac": 0.141},
-      {"model": "m3", "rmse": 0.156, "frac": 0.173},
-      {"model": "rf", "rmse": 0.157, "frac": 0.154},
-      {"model": "m3_ref", "rmse": 0.161, "frac": 0.178},
-      {"model": "ck", "rmse": 0.167, "frac": 0.172},
-      {"model": "m2", "rmse": 0.187, "frac": 0.264},
-      {"model": "m1", "rmse": 0.189, "frac": 0.268}
-    ]
+ "source": "Andrade (2026), Tabelas 9, 12, 13, 16, 19 e 20",
+ "cv": {
+  "mass_from_radius": [
+   {
+    "model": "rf_ext",
+    "rmse": 0.382,
+    "frac": 0.393
+   },
+   {
+    "model": "gb_ext",
+    "rmse": 0.385,
+    "frac": 0.402
+   },
+   {
+    "model": "gb",
+    "rmse": 0.404,
+    "frac": 0.434
+   },
+   {
+    "model": "m4",
+    "rmse": 0.404,
+    "frac": 0.43
+   },
+   {
+    "model": "m3",
+    "rmse": 0.408,
+    "frac": 0.45
+   },
+   {
+    "model": "rf",
+    "rmse": 0.412,
+    "frac": 0.446
+   },
+   {
+    "model": "m1",
+    "rmse": 0.437,
+    "frac": 0.477
+   },
+   {
+    "model": "m2",
+    "rmse": 0.439,
+    "frac": 0.469
+   }
+  ],
+  "radius_from_mass": [
+   {
+    "model": "rf_ext",
+    "rmse": 0.14,
+    "frac": 0.121
+   },
+   {
+    "model": "gb_ext",
+    "rmse": 0.141,
+    "frac": 0.128
+   },
+   {
+    "model": "m4",
+    "rmse": 0.151,
+    "frac": 0.15
+   },
+   {
+    "model": "gb",
+    "rmse": 0.152,
+    "frac": 0.141
+   },
+   {
+    "model": "m3",
+    "rmse": 0.156,
+    "frac": 0.173
+   },
+   {
+    "model": "rf",
+    "rmse": 0.157,
+    "frac": 0.154
+   },
+   {
+    "model": "m3_ref",
+    "rmse": 0.161,
+    "frac": 0.178
+   },
+   {
+    "model": "ck",
+    "rmse": 0.167,
+    "frac": 0.172
+   },
+   {
+    "model": "m2",
+    "rmse": 0.187,
+    "frac": 0.264
+   },
+   {
+    "model": "m1",
+    "rmse": 0.189,
+    "frac": 0.268
+   }
+  ]
+ },
+ "decomposition": {
+  "mass_from_radius": {
+   "intrinsic_fraction": 0.814,
+   "intrinsic_factor": 2.32,
+   "giants_fraction": 0.96,
+   "segments": [
+    {
+     "segment": 0,
+     "n": 736,
+     "intrinsic_fraction": 0.67,
+     "intrinsic_factor": 2.02
+    },
+    {
+     "segment": 1,
+     "n": 231,
+     "intrinsic_fraction": 0.85,
+     "intrinsic_factor": 2.96
+    },
+    {
+     "segment": 2,
+     "n": 560,
+     "intrinsic_fraction": 0.96,
+     "intrinsic_factor": 2.43
+    }
+   ]
   },
-  "decomposition": {
-    "mass_from_radius": {"intrinsic_fraction": 0.814, "intrinsic_factor": 2.32, "giants_fraction": 0.960},
-    "radius_from_mass": {"intrinsic_fraction": 0.719, "intrinsic_factor": 1.34}
+  "radius_from_mass": {
+   "intrinsic_fraction": 0.719,
+   "intrinsic_factor": 1.34,
+   "segments": [
+    {
+     "segment": 0,
+     "n": 615,
+     "intrinsic_fraction": 0.694,
+     "intrinsic_factor": 1.35
+    },
+    {
+     "segment": 1,
+     "n": 318,
+     "intrinsic_fraction": 0.722,
+     "intrinsic_factor": 1.52
+    },
+    {
+     "segment": 2,
+     "n": 594,
+     "intrinsic_fraction": 0.788,
+     "intrinsic_factor": 1.2
+    }
+   ]
+  }
+ },
+ "breaks": {
+  "mass_from_radius": [
+   {
+    "value": 8.05,
+    "lo": 7.27,
+    "hi": 9.63
+   },
+   {
+    "value": 11.64,
+    "lo": 10.24,
+    "hi": 12.2
+   }
+  ],
+  "radius_from_mass": [
+   {
+    "value": 23.5,
+    "lo": 8.5,
+    "hi": 81.3
+   },
+   {
+    "value": 174.4,
+    "lo": 126.6,
+    "hi": 202.0
+   }
+  ],
+  "ck_reference_mass": 131.6
+ },
+ "contamination": {
+  "naive": {
+   "n": 6240,
+   "slope_mr": 2.3688,
+   "slope_rm": 0.355,
+   "r2": 0.841,
+   "se_mr": 0.0168,
+   "se_rm": 0.0028
   },
-  "breaks": {
-    "mass_from_radius": [{"value": 8.05, "lo": 7.27, "hi": 9.63}, {"value": 11.64, "lo": 10.24, "hi": 12.20}],
-    "radius_from_mass": [{"value": 23.5, "lo": 8.5, "hi": 81.3}, {"value": 174.4, "lo": 126.6, "hi": 202.0}],
-    "ck_reference_mass": 131.6
+  "clean": {
+   "n": 1566,
+   "slope_mr": 2.0652,
+   "slope_rm": 0.3729,
+   "r2": 0.77,
+   "se_mr": 0.0318,
+   "se_rm": 0.0065
+  }
+ },
+ "direction": {
+  "mass": {
+   "direct": 0.449,
+   "inverted": 0.512,
+   "diff": 0.063,
+   "ci": [
+    0.049,
+    0.075
+   ]
   },
-  "contamination": {
-    "naive": {"n": 6240, "slope_mr": 2.3688, "slope_rm": 0.3550, "r2": 0.841, "se_mr": 0.0168, "se_rm": 0.0028},
-    "clean": {"n": 1566, "slope_mr": 2.0652, "slope_rm": 0.3729, "r2": 0.770, "se_mr": 0.0318, "se_rm": 0.0065}
-  },
-  "direction": {
-    "mass": {"direct": 0.449, "inverted": 0.512, "diff": 0.063, "ci": [0.049, 0.075]},
-    "radius": {"direct": 0.191, "inverted": 0.217, "diff": 0.026, "ci": [0.020, 0.032]}
-  },
-  "ck_vs_m4_radius": {"diff": 0.016, "ci": [0.011, 0.021]}
+  "radius": {
+   "direct": 0.191,
+   "inverted": 0.217,
+   "diff": 0.026,
+   "ci": [
+    0.02,
+    0.032
+   ]
+  }
+ },
+ "ck_vs_m4_radius": {
+  "diff": 0.016,
+  "ci": [
+   0.011,
+   0.021
+  ]
+ }
 }

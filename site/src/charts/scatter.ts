@@ -74,7 +74,7 @@ export class Scatter {
   }
 
   get margin() {
-    return this.o.margin ?? (this.o.compactAxes ? { top: 8, right: 8, bottom: 40, left: 46 } : { top: 12, right: 16, bottom: 48, left: 58 });
+    return this.o.margin ?? (this.o.compactAxes ? { top: 8, right: 22, bottom: 40, left: 54 } : { top: 12, right: 24, bottom: 48, left: 60 });
   }
 
   private resize() {
@@ -99,7 +99,7 @@ export class Scatter {
   }
 
   /** Define o estilo de cada ponto (e, se dado, as camadas); anima a transição. */
-  setStyle(fn: (i: number) => PointStyle, animate = true, overlays?: Overlay[]) {
+  setStyle(fn: (i: number) => PointStyle, animate = true, overlays?: Overlay[], duration = 650) {
     if (overlays) {
       const changed = overlays.length !== this.overlays.length || overlays.some((o, k) => o !== this.overlays[k]);
       this.overlays = overlays;
@@ -113,7 +113,7 @@ export class Scatter {
       this.cur.r[i] = s.r;
     }
     this.buildIndex();
-    if (animate && !reducedMotion()) this.animate(650);
+    if (animate && !reducedMotion()) this.animate(duration);
     else {
       this.tween = 1;
       this.cur.alpha.set(this.target.alpha);
@@ -286,7 +286,7 @@ export class Scatter {
     const m = this.margin;
     const grid = css("--rule");
     const ink = css("--dust");
-    ctx.font = `${this.o.compactAxes ? 11 : 12}px "Archivo Variable", system-ui, sans-serif`;
+    ctx.font = `${this.o.compactAxes ? 12 : 13}px "Archivo Variable", system-ui, sans-serif`;
     ctx.lineWidth = 1;
     ctx.fillStyle = ink;
     // grade e rótulos de x

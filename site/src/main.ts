@@ -3,21 +3,23 @@ import "./style.css";
 import { applyStatic, detectLang, getLang, onLangChange, setLang, t, type Lang } from "./i18n";
 import { loadDataset, loadHistory, loadLiveMeta, loadPaper, type Dataset, type DatasetLabel, type HistoryPoint, type Paper } from "./data";
 import { $, earthify, el, fmtFixed, fmtInt } from "./util";
-import { cvChart, decompositionChart, discoveriesChart, legend, METHOD_COLORS, monitorChart } from "./charts/svg";
+import { discoveriesChart, legend, METHOD_COLORS, monitorChart } from "./charts/svg";
 import { heroChart, storyChart, storyVars, whyChart } from "./sections/diagrams";
 import { initMeasure } from "./sections/measure";
 import { initPredictor } from "./sections/predictor";
 import { initExplorer } from "./sections/explorer";
+import { initResults } from "./sections/results";
+import { currentPage, initRouter, onPage, refreshRouterText } from "./router";
 
 const REFS = [
   { key: "mayor", cite: "Mayor & Queloz (1995)", where: "Nature 378, 355", doi: "10.1038/378355a0" },
   { key: "seager", cite: "Seager & Mallén-Ornelas (2003)", where: "ApJ 585, 1038", doi: "10.1086/346105" },
-  { key: "weiss", cite: "Weiss & Marcy (2014)", where: "ApJ 783, L6", doi: "10.1088/2041-8205/783/1/L6" },
+  { key: "weiss", cite: "Weiss & Marcy (2014)", where: "ApJL 783, L6", doi: "10.1088/2041-8205/783/1/L6" },
   { key: "wolfgang", cite: "Wolfgang, Rogers & Ford (2016)", where: "ApJ 825, 19", doi: "10.3847/0004-637X/825/1/19" },
   { key: "chen", cite: "Chen & Kipping (2017)", where: "ApJ 834, 17", doi: "10.3847/1538-4357/834/1/17" },
   { key: "fulton", cite: "Fulton et al. (2017)", where: "AJ 154, 109", doi: "10.3847/1538-3881/aa80eb" },
-  { key: "ning", cite: "Ning, Wolfgang & Ghosh (2018)", where: "ApJ 869, 5", url: "https://arxiv.org/abs/1811.02324" },
-  { key: "otegi", cite: "Otegi, Bouchy & Helled (2020)", where: "A&A 634, A43", url: "https://arxiv.org/abs/1911.04745" },
+  { key: "ning", cite: "Ning, Wolfgang & Ghosh (2018)", where: "ApJ 869, 5", doi: "10.3847/1538-4357/aaeb31" },
+  { key: "otegi", cite: "Otegi, Bouchy & Helled (2020)", where: "A&A 634, A43", doi: "10.1051/0004-6361/201936482" },
   { key: "christiansen", cite: "Christiansen et al. (2025)", where: "PSJ 6, 186", doi: "10.3847/PSJ/ade3c2" },
 ];
 
@@ -87,79 +89,10 @@ function renderStorySteps(d: Dataset) {
   });
 }
 
-function renderResults(d: Dataset, paper: Paper) {
-  const live = d.label === "live";
-  const box = $("#headline-results");
-  let items: [string, string][];
-  if (!live) {
-    const dm = paper.decomposition.mass_from_radius;
-    const dr = paper.decomposition.radius_from_mass;
-    const b = paper.breaks.radius_from_mass[1];
-    items = [
-      [t("hr.1v", { v: fmtFixed(dm.intrinsic_factor, 1) }), t("hr.1", { r: fmtFixed(dr.intrinsic_factor, 2) })],
-      [t("hr.2v", { v: fmtFixed(dm.intrinsic_fraction * 100, 0) }), t("hr.2", { g: fmtFixed(dm.giants_fraction * 100, 0) })],
-      [t("hr.3v", { v: fmtInt(b.value) }), t("hr.3", { lo: fmtInt(b.lo), hi: fmtInt(b.hi), ck: `${fmtFixed(paper.breaks.ck_reference_mass, 1)} M⊕` })],
-    ];
-  } else {
-    const dm = d.models.cv.mass_from_radius.decomposition_m4;
-    const dr = d.models.cv.radius_from_mass.decomposition_m4;
-    const brk = d.models.fits.radius_from_mass.m3.breaks_linear[1];
-    items = [
-      [t("hr.1v", { v: fmtFixed(dm.intrinsic_factor, 1) }), t("hr.1", { r: fmtFixed(dr.intrinsic_factor, 2) })],
-      [t("hr.2v", { v: fmtFixed(dm.intrinsic_fraction * 100, 0) }), t("hr.2b")],
-      [t("hr.3v", { v: fmtInt(brk) }), t("hr.3b", { ck: `${fmtFixed(paper.breaks.ck_reference_mass, 1)} M⊕` })],
-    ];
-  }
-  box.replaceChildren(...items.map(([v, txt]) => el("div", { class: "hr" }, el("p", { class: "hr__value" }, v), el("p", { class: "hr__text" }, txt))));
-
-  type Row = { model: string; rmse: number };
-  const fromLive = (dir: "mass_from_radius" | "radius_from_mass"): Row[] =>
-    Object.entries(d.models.cv[dir])
-      .filter(([k]) => k !== "decomposition_m4")
-      .map(([model, v]) => ({ model, rmse: (v as { rmse_dex: number }).rmse_dex }))
-      .sort((a, b) => a.rmse - b.rmse);
-  const massRows = live ? fromLive("mass_from_radius") : paper.cv.mass_from_radius;
-  const radRows = live ? fromLive("radius_from_mass") : paper.cv.radius_from_mass;
-  const floorM = live ? d.models.cv.mass_from_radius.decomposition_m4.intrinsic_factor : paper.decomposition.mass_from_radius.intrinsic_factor;
-  const floorR = live ? d.models.cv.radius_from_mass.decomposition_m4.intrinsic_factor : paper.decomposition.radius_from_mass.intrinsic_factor;
-  state.redraws.push(cvChart($("#cv-mass"), massRows, [1, 3], floorM));
-  state.redraws.push(cvChart($("#cv-radius"), radRows, [1, 3], floorR));
-  $("#cv-note").textContent = live ? t("cv.note.live", { date: fmtDate(d.date) }) : t("cv.note.paper");
-
-  const decRows = live
-    ? [
-        { label: t("dec.mass"), intrinsic: d.models.cv.mass_from_radius.decomposition_m4.intrinsic_fraction },
-        { label: t("dec.radius"), intrinsic: d.models.cv.radius_from_mass.decomposition_m4.intrinsic_fraction },
-      ]
-    : [
-        { label: t("dec.mass"), intrinsic: paper.decomposition.mass_from_radius.intrinsic_fraction },
-        { label: t("dec.radius"), intrinsic: paper.decomposition.radius_from_mass.intrinsic_fraction },
-      ];
-  legend($("#dec-legend"), [
-    { color: "--intrinsic", label: t("dec.intr") },
-    { color: "--instrumental", label: t("dec.instr") },
-  ]);
-  state.redraws.push(decompositionChart($("#dec-chart"), decRows));
-
-  const c = paper.contamination;
-  const tr = (label: string, a: string, b: string) => el("tr", {}, el("th", { scope: "row" }, label), el("td", { class: "num" }, a), el("td", { class: "num" }, b));
-  $("#cont-table").replaceChildren(
-    el("thead", {}, el("tr", {}, el("th", {}, ""), el("th", { scope: "col", class: "num" }, t("cont.naive")), el("th", { scope: "col", class: "num" }, t("cont.clean")))),
-    el(
-      "tbody",
-      {},
-      tr(t("cont.n"), fmtInt(c.naive.n), fmtInt(c.clean.n)),
-      tr(t("cont.r2"), fmtFixed(c.naive.r2, 2), fmtFixed(c.clean.r2, 2)),
-      tr(t("cont.slope"), fmtFixed(c.naive.slope_mr, 2), fmtFixed(c.clean.slope_mr, 2)),
-      tr(t("cont.se"), fmtFixed(c.naive.se_mr, 3), fmtFixed(c.clean.se_mr, 3)),
-    ),
-  );
-}
-
 function renderRefs() {
   $("#refs").replaceChildren(
     ...REFS.map((r) => {
-      const href = "doi" in r && r.doi ? `https://doi.org/${r.doi}` : (r as { url: string }).url;
+      const href = `https://doi.org/${r.doi}`;
       return el(
         "li",
         { class: "ref" },
@@ -196,16 +129,20 @@ let currentStep = 0;
 const predictor = initPredictor();
 const explorer = initExplorer();
 const measure = initMeasure();
+const results = initResults((i) => explorer.open(i));
+let hero: ReturnType<typeof heroChart> | null = null;
 
 function renderAll() {
   const d = state.d!;
   const paper = state.paper!;
   state.redraws = [];
   applyStatic();
+  refreshRouterText();
   datasetOptions();
 
   $("#hero-chart").replaceChildren();
-  const hero = heroChart($("#hero-chart"), d, (i) => explorer.open(i));
+  hero = heroChart($("#hero-chart"), d, (i) => explorer.open(i));
+  if (currentPage() === "inicio") hero.playIntro();
 
   legend(
     $("#disc-legend"),
@@ -223,54 +160,57 @@ function renderAll() {
   $("#why-chart").replaceChildren();
   const why = whyChart($("#why-chart"), $("#why-legend"), d, (i) => explorer.open(i));
 
+  measure.setData(d);
   predictor.setData(d);
-  renderResults(d, paper);
+  results.setData(d, paper);
   explorer.setData(d);
   renderRefs();
   renderAbout(d);
 
-  state.redraws.push(hero.redraw, why.redraw, () => story?.redraw());
+  state.redraws.push(() => hero?.redraw(), why.redraw, () => story?.redraw());
   earthify(document.body);
 }
 
 function initStoryObserver() {
   const steps = Array.from(document.querySelectorAll<HTMLElement>("#story-steps .step"));
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        const k = +(e.target as HTMLElement).dataset.step!;
-        currentStep = k;
-        steps.forEach((s) => s.classList.toggle("is-active", s === e.target));
-        story?.go(k);
-      }
-    },
-    { rootMargin: "-45% 0px -45% 0px" },
-  );
-  steps.forEach((s) => io.observe(s));
-  steps[0].classList.add("is-active");
-}
-
-function initNavHighlight() {
-  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>(".topnav a"));
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        links.forEach((a) => a.classList.toggle("is-current", a.getAttribute("href") === `#${e.target.id}`));
-      }
-    },
-    { rootMargin: "-40% 0px -55% 0px" },
-  );
-  ["medir", "achado", "porque", "prever", "resultados", "explorar", "fontes"].forEach((id) => {
-    const s = document.getElementById(id);
-    if (s) io.observe(s);
+  const graphic = document.querySelector<HTMLElement>(".scrolly__graphic")!;
+  let ticking = false;
+  // o passo ativo é o último cujo topo já passou de uma linha de leitura:
+  // no computador, o meio da tela; no celular, um pouco abaixo do gráfico fixo
+  const update = () => {
+    ticking = false;
+    if (graphic.offsetParent === null) return; // página escondida
+    const mobile = window.innerWidth < 900;
+    const g = graphic.getBoundingClientRect();
+    const anchor = mobile ? g.bottom + (window.innerHeight - g.bottom) * 0.3 : window.innerHeight * 0.5;
+    let k = 0;
+    steps.forEach((s, i) => {
+      if (s.querySelector("p")!.getBoundingClientRect().top <= anchor) k = i;
+    });
+    if (k !== currentStep || !steps[k].classList.contains("is-active")) {
+      currentStep = k;
+      steps.forEach((s, i) => s.classList.toggle("is-active", i === k));
+      story?.go(k);
+    }
+  };
+  const onScroll = () => {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  onPage((p) => {
+    if (p === "dados") requestAnimationFrame(update);
   });
+  steps[0].classList.add("is-active");
 }
 
 async function main() {
   setLang(detectLang());
   initLangSwitch();
+  initRouter();
   try {
     const [paper, history, liveMeta] = await Promise.all([loadPaper(), loadHistory(), loadLiveMeta().catch(() => null)]);
     state.paper = paper;
@@ -283,10 +223,12 @@ async function main() {
     return;
   }
   renderAll();
+  onPage((p) => {
+    if (p === "inicio") hero?.playIntro();
+  });
   // os canvas desenham texto: redesenha quando a fonte terminar de carregar
   document.fonts?.ready.then(() => state.redraws.forEach((f) => f()));
   initStoryObserver();
-  initNavHighlight();
 
   ($("#dataset") as HTMLSelectElement).addEventListener("change", async (e) => {
     const label = (e.target as HTMLSelectElement).value as DatasetLabel;
@@ -303,7 +245,6 @@ async function main() {
   onLangChange(() => {
     if (!state.d) return;
     renderAll();
-    measure.redraw();
   });
 }
 

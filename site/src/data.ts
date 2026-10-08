@@ -46,7 +46,17 @@ export interface Models {
   fits: Record<"mass_from_radius" | "radius_from_mass", { m1: { intercept: number; slope: number; r2: number }; m3: BrokenFit }>;
   cv: Record<"mass_from_radius" | "radius_from_mass", Record<string, CvEntry> & {
     decomposition_m4: { mse: number; intrinsic_fraction: number; intrinsic_sigma_dex: number; intrinsic_factor: number };
+    decomposition_segments: Segment[];
   }>;
+  curves: Record<Direction, Record<string, number[]>>;
+}
+
+export type Direction = "mass_from_radius" | "radius_from_mass";
+export interface Segment {
+  segment: number;
+  n: number;
+  intrinsic_fraction: number;
+  intrinsic_factor: number;
 }
 
 export interface Audit {
@@ -71,8 +81,8 @@ export interface Discoveries {
 export interface Paper {
   cv: Record<"mass_from_radius" | "radius_from_mass", { model: string; rmse: number; frac: number }[]>;
   decomposition: {
-    mass_from_radius: { intrinsic_fraction: number; intrinsic_factor: number; giants_fraction: number };
-    radius_from_mass: { intrinsic_fraction: number; intrinsic_factor: number };
+    mass_from_radius: { intrinsic_fraction: number; intrinsic_factor: number; giants_fraction: number; segments: Segment[] };
+    radius_from_mass: { intrinsic_fraction: number; intrinsic_factor: number; segments: Segment[] };
   };
   breaks: {
     radius_from_mass: { value: number; lo: number; hi: number }[];

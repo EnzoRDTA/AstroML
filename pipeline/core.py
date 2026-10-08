@@ -260,9 +260,54 @@ def models(clean: pd.DataFrame, n_splits=10) -> dict:
             "mse": mse, "intrinsic_fraction": intr / mse,
             "intrinsic_sigma_dex": float(np.sqrt(intr)), "intrinsic_factor": float(10 ** np.sqrt(intr)),
         }
+        # a mesma decomposição dentro de cada segmento do Modelo 3
+        segs = []
+        for k in range(3):
+            m = seg == k
+            if m.sum() < 10:
+                continue
+            mse_k = float(np.mean((y[m] - preds["m4"][m]) ** 2))
+            intr_k = max(mse_k - float(np.mean(instr[m])), 0.0)
+            segs.append({"segment": k, "n": int(m.sum()), "intrinsic_fraction": intr_k / mse_k,
+                         "intrinsic_factor": float(10 ** np.sqrt(intr_k))})
+        res["decomposition_segments"] = segs
         cv[name] = res
+
+    # curvas de cada modelo sobre uma grade do preditor (para o site desenhar)
+    curves = {}
+    for name, (xc, yc, sx, sy) in directions.items():
+        x, y = cc[xc].values, cc[yc].values
+        grid = np.linspace(np.percentile(d[xc], 1), np.percentile(d[xc], 99), 90)
+        f = full[name]["m3"]
+        b1 = full[name]["m1"]
+        lS_med, fe_med = float(np.median(cc["lS"])), float(np.median(cc["fe"]))
+        c = {"x": grid.tolist(),
+             "m1": (b1["intercept"] + b1["slope"] * grid).tolist(),
+             "m3": predict_broken(f, grid).tolist()}
+        fm = fit_broken(x, y)
+        b4 = ols(design_m4(x, fm["c1"], fm["c2"], cc["lS"].values, cc["fe"].values), y)
+        c["m4"] = (design_m4(grid, fm["c1"], fm["c2"], np.full_like(grid, lS_med), np.full_like(grid, fe_med)) @ b4).tolist()
+        F = np.column_stack([x, cc["lS"].values, cc["fe"].values])
+        models_ml = {
+            "rf": RandomForestRegressor(n_estimators=200, max_features=0.6, min_samples_leaf=10,
+                                        random_state=SEED, n_jobs=-1).fit(F, y),
+            "gb": HistGradientBoostingRegressor(max_leaf_nodes=5, learning_rate=0.05, max_iter=300,
+                                                random_state=SEED).fit(F, y),
+        }
+        for k, mdl in models_ml.items():
+            # dependência parcial: média das previsões com o preditor fixado em cada ponto da grade
+            pd_curve = []
+            for g in grid:
+                Fg = F.copy()
+                Fg[:, 0] = g
+                pd_curve.append(float(mdl.predict(Fg).mean()))
+            c[k] = pd_curve
+        if name == "radius_from_mass":
+            c["ck"] = np.log10(ck_radius(10 ** grid)).tolist()
+        curves[name] = {k: [round(v, 4) for v in vals] for k, vals in c.items()}
     out["fits"] = full
     out["cv"] = cv
+    out["curves"] = curves
     return out
 
 

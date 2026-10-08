@@ -3,6 +3,7 @@ import { ckRadius, predictBroken, SOLAR } from "../data";
 import { t } from "../i18n";
 import { curveOverlay, labelOverlay, Scatter, type AxisSpec, type Overlay } from "../charts/scatter";
 import { css, el, fmt, fmtFixed, fmtInt } from "../util";
+import { REGIME_VARS, regimeAlpha, regimeLegend, regimeOf, type RegimeState } from "../charts/regimes";
 
 export const MASS_AXIS: AxisSpec = {
   type: "log",
@@ -76,12 +77,15 @@ export function heroChart(container: HTMLElement, d: Dataset, onPick: (i: number
   });
   // sem a curva: os próprios pontos laranja desenham a fórmula
   sc.setStyle(style, false, []);
-  if (!introPlayed) {
-    introPlayed = true;
-    // espera a fonte e o layout para a abertura não engasgar
-    requestAnimationFrame(() => sc.playIntro());
-  }
-  return { redraw: () => sc.redraw() };
+  return {
+    redraw: () => sc.redraw(),
+    /** A abertura toca uma vez, na primeira vez que a página inicial aparece. */
+    playIntro: () => {
+      if (introPlayed) return;
+      introPlayed = true;
+      requestAnimationFrame(() => requestAnimationFrame(() => sc.playIntro()));
+    },
+  };
 }
 
 /* ----------------------------------------------------------- scrollytelling */
@@ -92,9 +96,14 @@ export function storyChart(container: HTMLElement, legend: HTMLElement, d: Datas
     y: RADIUS_AXIS,
     xs: p.mass,
     ys: p.radius,
-    height: (w) => Math.max(320, Math.min(w * 0.72, window.innerHeight * 0.7)),
+    // no celular o gráfico divide a tela com o texto, por isso fica mais baixo
+    height: (w) =>
+      window.innerWidth < 900
+        ? Math.max(230, Math.min(w * 0.8, window.innerHeight * 0.36))
+        : Math.max(320, Math.min(w * 0.72, window.innerHeight * 0.7)),
     tooltip: (i) => planetTip(d, i),
     onClick: onPick,
+    compactAxes: window.innerWidth < 900,
   });
   let step = 0;
   const neutral = css("--star");
@@ -167,8 +176,7 @@ export function whyChart(container: HTMLElement, legend: HTMLElement, d: Dataset
     tooltip: (i) => planetTip(d, i),
     onClick: onPick,
   });
-  const colors = ["--rocky", "--neptunian", "--giant"].map(css);
-  const regime = (m: number) => (m <= 2.04 ? 0 : m <= 131.58 ? 1 : 2);
+  const colors = REGIME_VARS.map(css);
   const zero: Overlay = (ctx, sx, sy) => {
     ctx.strokeStyle = css("--dust");
     ctx.lineWidth = 1;
@@ -177,15 +185,32 @@ export function whyChart(container: HTMLElement, legend: HTMLElement, d: Dataset
     ctx.lineTo(sx(30000), Math.round(sy(0)) + 0.5);
     ctx.stroke();
   };
-  sc.setStyle((i) => ({ color: ys[i] == null ? null : colors[regime(p.mass[i])], alpha: 0.75, r: 2.2 }), false, [zero]);
-  const renderLegend = () =>
-    legend.replaceChildren(
-      ...[0, 1, 2].map((k) =>
-        el("span", { class: "key" }, el("i", { class: "dot", style: `--c: var(${["--rocky", "--neptunian", "--giant"][k]})` }), el("span", {}, t(`regime.${k}`))),
-      ),
+  const counts = [0, 0, 0];
+  ys.forEach((v, i) => {
+    if (v != null) counts[regimeOf(p.mass[i])]++;
+  });
+  let state: RegimeState = { visible: [true, true, true], hover: null };
+  const apply = (animate: boolean, duration = 650) =>
+    sc.setStyle(
+      (i) => {
+        if (ys[i] == null) return { color: null, alpha: 0, r: 2.2 };
+        const k = regimeOf(p.mass[i]);
+        const a = regimeAlpha(state, k, 0.8);
+        return { color: a == null ? null : colors[k], alpha: a ?? 0, r: 2.3 };
+      },
+      animate,
+      [zero],
+      duration,
     );
+  const renderLegend = () => {
+    state = regimeLegend(legend, counts, (s) => {
+      state = s;
+      apply(true, 220);
+    });
+  };
+  apply(false);
   renderLegend();
-  return { redraw: () => { sc.redraw(); renderLegend(); } };
+  return { redraw: () => { sc.redraw(); renderLegend(); apply(false); } };
 }
 
 /* -------------------------------------------------------- previsor (gráfico) */
