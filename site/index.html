@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Além da Curva | Massa e raio de exoplanetas</title>
+  <meta name="description" content="Valores medidos e calculados no NASA Exoplanet Archive, a relação massa-raio de exoplanetas e o limite da previsão. Pesquisa interativa de Ciência de Dados, IESB 2026." />
+  <meta property="og:title" content="Além da Curva" />
+  <meta property="og:description" content="Massa e raio de exoplanetas: o que foi medido, o que foi calculado e até onde dá para prever." />
+  <meta name="theme-color" content="#060B16" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23060B16'/%3E%3Cpath d='M4 26 C 12 22, 16 12, 28 6' stroke='%23D6559C' stroke-width='2' fill='none'/%3E%3Ccircle cx='10' cy='12' r='2.2' fill='%233D9BE9'/%3E%3Ccircle cx='22' cy='20' r='2.2' fill='%233D9BE9'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <a class="skip" href="#conteudo" data-i18n="nav.skip">Pular para o conteúdo</a>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="wordmark" href="#top" data-i18n="site.name">Além da Curva</a>
+      <nav class="topnav" aria-label="Seções" data-i18n-attr="aria-label:nav.label">
+        <a href="#medir" data-i18n="nav.measure">Medir</a>
+        <a href="#achado" data-i18n="nav.finding">Os dados</a>
+        <a href="#prever" data-i18n="nav.predict">Prever</a>
+        <a href="#resultados" data-i18n="nav.results">Resultados</a>
+        <a href="#explorar" data-i18n="nav.explore">Explorar</a>
+        <a href="#fontes" data-i18n="nav.sources">Fontes</a>
+      </nav>
+      <div class="topbar__controls">
+        <label class="dataset">
+          <span class="visually-hidden" data-i18n="data.label">Base de dados</span>
+          <select id="dataset" aria-describedby="dataset-help"></select>
+        </label>
+        <div class="lang" role="group" aria-label="Idioma / Language">
+          <button type="button" data-lang="pt" aria-pressed="true">PT</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </div>
+    <p id="dataset-help" class="visually-hidden" data-i18n="data.help">Escolha entre os dados usados no trabalho e a atualização semanal do catálogo.</p>
+  </header>
+
+  <main id="conteudo">
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="hero__text">
+        <h1 class="hero__title" data-i18n="site.name">Além da Curva</h1>
+        <p class="hero__lede" data-i18n="hero.lede">Para manter a tabela completa, o NASA Exoplanet Archive calcula parte das massas e dos raios a partir de uma relação publicada, e indica isso em cada registro. Esta pesquisa separa os valores medidos dos calculados e mede até onde dá para prever a massa de um planeta pelo seu tamanho.</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#achado" data-i18n="hero.cta">Ver os dados</a>
+          <a class="btn" href="#prever" data-i18n="hero.cta2">Prever um planeta</a>
+        </div>
+        <p class="hero__byline" data-i18n="hero.byline">Pesquisa de Enzo Rodrigues Teixeira de Andrade, com orientação do Prof. Sérgio da Costa Côrtes. Ciência de Dados e Inteligência Artificial, IESB, 2026.</p>
+      </div>
+      <figure class="hero__figure">
+        <div class="chart chart--hero" id="hero-chart" role="img" data-i18n-attr="aria-label:hero.aria"></div>
+        <figcaption class="legend-row">
+          <span class="key"><i class="dot" style="--c: var(--measured)"></i><span data-i18n="legend.measured">Massa e raio medidos</span></span>
+          <span class="key"><i class="dot" style="--c: var(--calculated)"></i><span data-i18n="legend.calculatedHero">Um dos valores calculado pela fórmula de Chen e Kipping (2017)</span></span>
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- MEDIR -->
+    <section class="section" id="medir" aria-labelledby="medir-h">
+      <div class="prose">
+        <h2 id="medir-h" data-i18n="measure.h">Como se mede um planeta que ninguém vê</h2>
+        <p data-i18n="measure.p">Quase nenhum exoplaneta foi fotografado. A massa e o raio vêm de efeitos indiretos sobre a estrela, e cada método entrega metade da resposta.</p>
+      </div>
+      <div class="measure">
+        <article class="instrument">
+          <h3 data-i18n="transit.h">Trânsito: o raio</h3>
+          <p data-i18n="transit.p">Quando o planeta passa na frente da estrela, o brilho cai um pouco. A queda é proporcional à área do disco do planeta, (R<sub>p</sub>/R<sub>★</sub>)². Um Júpiter diante do Sol apaga cerca de 1% da luz; uma Terra, menos de 0,01%.</p>
+          <canvas id="transit-canvas" aria-hidden="true"></canvas>
+          <div class="control">
+            <label for="transit-size" data-i18n="transit.label">Tamanho do planeta</label>
+            <input id="transit-size" type="range" min="2" max="30" value="12" />
+            <output for="transit-size" id="transit-out"></output>
+          </div>
+          <p class="readout" id="transit-readout" aria-live="polite"></p>
+        </article>
+        <article class="instrument">
+          <h3 data-i18n="rv.h">Velocidade radial: a massa</h3>
+          <p data-i18n="rv.p">Planeta e estrela giram em torno de um centro comum. A estrela balança, e a luz dela se desloca para o azul quando vem e para o vermelho quando vai. Júpiter faz o Sol balançar 13 m/s; a Terra, só 9 cm/s.</p>
+          <canvas id="rv-canvas" aria-hidden="true"></canvas>
+          <div class="control">
+            <label for="rv-mass" data-i18n="rv.label">Massa do planeta</label>
+            <input id="rv-mass" type="range" min="1" max="10" value="5" />
+            <output for="rv-mass" id="rv-out"></output>
+          </div>
+          <p class="readout" id="rv-readout" aria-live="polite"></p>
+        </article>
+      </div>
+      <div class="prose prose--after">
+        <p data-i18n="measure.both">Com o raio do trânsito e a massa da velocidade radial, sabe-se a densidade, e com ela, do que o planeta é feito. Quando o planeta não transita, a velocidade radial dá só uma massa mínima, M sen <i>i</i>, porque não se conhece a inclinação da órbita.</p>
+        <button type="button" class="btn btn--quiet" id="anim-toggle"></button>
+      </div>
+
+      <figure class="figure" id="discoveries-fig">
+        <figcaption class="figure__head">
+          <h3 data-i18n="disc.h">Seis mil planetas, quase todos por dois métodos</h3>
+          <p data-i18n="disc.p">Planetas confirmados por ano de descoberta e método. Os picos de 2014 e 2016 são lotes de validação da missão Kepler.</p>
+        </figcaption>
+        <div class="legend-row" id="disc-legend"></div>
+        <div class="chart" id="disc-chart"></div>
+        <p class="figure__note" id="disc-note"></p>
+      </figure>
+    </section>
+
+    <!-- ACHADO -->
+    <section class="section section--wide" id="achado" aria-labelledby="achado-h">
+      <div class="prose">
+        <h2 id="achado-h" data-i18n="finding.h">Valores medidos e valores calculados</h2>
+        <p data-i18n="finding.p">O diagrama massa-raio é a ferramenta usada para deduzir do que um planeta é feito. Role para ver o que acontece com ele quando se separa o que foi medido do que foi calculado.</p>
+      </div>
+      <div class="scrolly">
+        <div class="scrolly__graphic">
+          <div class="chart chart--story" id="story-chart" role="img" data-i18n-attr="aria-label:finding.aria"></div>
+          <div class="legend-row" id="story-legend"></div>
+        </div>
+        <ol class="scrolly__steps" id="story-steps">
+          <li class="step" data-step="0"><p data-i18n="step.0"></p></li>
+          <li class="step" data-step="1"><p data-i18n="step.1"></p></li>
+          <li class="step" data-step="2"><p data-i18n="step.2"></p></li>
+          <li class="step" data-step="3"><p data-i18n="step.3"></p></li>
+          <li class="step" data-step="4"><p data-i18n="step.4"></p></li>
+        </ol>
+      </div>
+
+      <div class="split">
+        <figure class="figure">
+          <figcaption class="figure__head">
+            <h3 data-i18n="attr.h">Do catálogo à amostra limpa</h3>
+            <p data-i18n="attr.p">Cada etapa remove um tipo de registro. A amostra final tem só planetas com massa e raio medidos e incerteza publicada.</p>
+          </figcaption>
+          <ol class="funnel" id="funnel"></ol>
+        </figure>
+        <aside class="note-card">
+          <h3 data-i18n="rule.h">Uma regra para outros catálogos</h3>
+          <p data-i18n="rule.p">Nem todo catálogo diz de onde vem cada valor. Este trabalho testou um critério simples: valor sem incerteza publicada é valor calculado.</p>
+          <dl class="facts" id="rule-facts"></dl>
+          <p class="figure__note" data-i18n="rule.note">Os falsos positivos vêm quase todos de trabalhos de validação estatística, que confirmam que o objeto é um planeta sem caracterizá-lo com precisão.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- POR QUE -->
+    <section class="section" id="porque" aria-labelledby="porque-h">
+      <div class="prose">
+        <h2 id="porque-h" data-i18n="why.h">Por que os planetas fogem da curva</h2>
+        <p data-i18n="why.p">A distância de cada planeta até a curva não é só ruído. Ela diz se ele é mais ou menos denso do que o esperado para a sua massa, e parte dela tem causa física.</p>
+      </div>
+      <figure class="figure">
+        <figcaption class="figure__head">
+          <h3 data-i18n="why.fig">Distância até a curva e luz recebida da estrela</h3>
+          <p data-i18n="why.cap">Acima de zero, o raio é maior que o previsto pela massa: o planeta é menos denso. Gigantes muito irradiados incham; planetas pequenos muito irradiados perdem atmosfera e ficam abaixo.</p>
+        </figcaption>
+        <div class="legend-row" id="why-legend"></div>
+        <div class="chart chart--why" id="why-chart" role="img" data-i18n-attr="aria-label:why.aria"></div>
+      </figure>
+      <div class="prose">
+        <p data-i18n="why.solar">No Sistema Solar, Júpiter tem 3,3 vezes a massa de Saturno, mas é só 18% maior. Entre os gigantes, o raio quase não informa a massa: a matéria a mais é comprimida, e o planeta mal cresce.</p>
+      </div>
+    </section>
+
+    <!-- PREVER -->
+    <section class="section section--wide" id="prever" aria-labelledby="prever-h">
+      <div class="prose">
+        <h2 id="prever-h" data-i18n="pred.h">Prever um planeta</h2>
+        <p data-i18n="pred.p">Escolha o que prever e informe o outro valor. O modelo é a lei de potência quebrada ajustada aos planetas medidos; a faixa é o erro típico em planetas que ele não viu.</p>
+      </div>
+      <div class="predictor">
+        <form class="predictor__form" id="pred-form" novalidate>
+          <fieldset class="segmented">
+            <legend data-i18n="pred.dir">O que prever</legend>
+            <label><input type="radio" name="dir" value="mass" checked /><span data-i18n="pred.mass">A massa, pelo raio</span></label>
+            <label><input type="radio" name="dir" value="radius" /><span data-i18n="pred.radius">O raio, pela massa</span></label>
+          </fieldset>
+          <div class="field">
+            <label for="pred-input" id="pred-input-label"></label>
+            <div class="field__row">
+              <input id="pred-input" type="number" inputmode="decimal" step="any" min="0" />
+              <span class="unit" id="pred-unit"></span>
+            </div>
+            <input id="pred-slider" type="range" min="0" max="1000" aria-labelledby="pred-input-label" />
+            <p class="field__hint" id="pred-hint"></p>
+          </div>
+          <div class="presets">
+            <span class="presets__label" data-i18n="pred.try">Testar com</span>
+            <button type="button" data-preset="earth" data-i18n="planet.earth">Terra</button>
+            <button type="button" data-preset="neptune" data-i18n="planet.neptune">Netuno</button>
+            <button type="button" data-preset="saturn" data-i18n="planet.saturn">Saturno</button>
+            <button type="button" data-preset="jupiter" data-i18n="planet.jupiter">Júpiter</button>
+          </div>
+        </form>
+        <div class="predictor__result" aria-live="polite">
+          <p class="result__label" id="pred-result-label"></p>
+          <p class="result__value" id="pred-value"></p>
+          <p class="result__range" id="pred-range"></p>
+          <dl class="facts" id="pred-facts"></dl>
+        </div>
+        <div class="predictor__chart">
+          <div class="chart chart--pred" id="pred-chart" role="img" data-i18n-attr="aria-label:pred.aria"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTADOS -->
+    <section class="section" id="resultados" aria-labelledby="res-h">
+      <div class="prose">
+        <h2 id="res-h" data-i18n="res.h">Quanto dá para acertar</h2>
+        <p data-i18n="res.p">Foram testados modelos da regressão simples à floresta aleatória, sempre em planetas que o modelo não viu, com os planetas de uma mesma estrela no mesmo lado do teste. Nenhum passa de um limite, e esse limite vem dos planetas, não dos modelos.</p>
+      </div>
+      <div class="headline-results" id="headline-results"></div>
+      <figure class="figure">
+        <figcaption class="figure__head">
+          <h3 data-i18n="cv.h">Erro típico fora da amostra, por modelo</h3>
+          <p data-i18n="cv.p">Fator pelo qual a previsão costuma errar. Quanto mais à esquerda, melhor. Validação cruzada em 10 partes, agrupada por estrela.</p>
+        </figcaption>
+        <div class="cv-grid">
+          <div><h4 data-i18n="cv.mass">Prevendo a massa pelo raio</h4><div class="chart" id="cv-mass"></div></div>
+          <div><h4 data-i18n="cv.radius">Prevendo o raio pela massa</h4><div class="chart" id="cv-radius"></div></div>
+        </div>
+        <p class="figure__note" id="cv-note"></p>
+      </figure>
+      <div class="split">
+        <figure class="figure">
+          <figcaption class="figure__head">
+            <h3 data-i18n="dec.h">De onde vem o erro</h3>
+            <p data-i18n="dec.p">Parte do erro é incerteza das medidas. O resto, a maior parte, é diversidade real: planetas de mesmo tamanho com composições diferentes.</p>
+          </figcaption>
+          <div class="legend-row" id="dec-legend"></div>
+          <div class="chart" id="dec-chart"></div>
+        </figure>
+        <figure class="figure">
+          <figcaption class="figure__head">
+            <h3 data-i18n="cont.h">O efeito dos valores calculados</h3>
+            <p data-i18n="cont.p">O mesmo modelo, ajustado com e sem os valores calculados. A amostra misturada parece mais precisa do que os dados permitem.</p>
+          </figcaption>
+          <table class="data-table" id="cont-table"></table>
+        </figure>
+      </div>
+    </section>
+
+    <!-- EXPLORAR -->
+    <section class="section section--wide" id="explorar" aria-labelledby="exp-h">
+      <div class="prose">
+        <h2 id="exp-h" data-i18n="exp.h">Explorar os planetas</h2>
+        <p data-i18n="exp.p">Todos os planetas do catálogo que têm massa e raio, com a origem de cada valor. Clique em um planeta para ver os detalhes.</p>
+      </div>
+      <div class="explorer">
+        <div class="filters" role="search">
+          <div class="field">
+            <label for="exp-search" data-i18n="exp.search">Buscar planeta ou estrela</label>
+            <input id="exp-search" type="search" autocomplete="off" data-i18n-attr="placeholder:exp.searchHint" />
+          </div>
+          <div class="field">
+            <label for="exp-origin" data-i18n="exp.origin">Origem dos dados</label>
+            <select id="exp-origin"></select>
+          </div>
+          <div class="field">
+            <label for="exp-method" data-i18n="exp.method">Método de descoberta</label>
+            <select id="exp-method"></select>
+          </div>
+          <div class="field">
+            <label for="exp-regime" data-i18n="exp.regime">Tipo de planeta</label>
+            <select id="exp-regime"></select>
+          </div>
+        </div>
+        <p class="explorer__count" id="exp-count" aria-live="polite"></p>
+        <div class="table-wrap">
+          <table class="data-table data-table--planets" id="exp-table"></table>
+        </div>
+        <div class="explorer__more">
+          <button type="button" class="btn btn--quiet" id="exp-more"></button>
+          <button type="button" class="btn btn--quiet" id="exp-download"></button>
+        </div>
+      </div>
+      <aside class="drawer" id="drawer" aria-labelledby="drawer-title" hidden>
+        <div class="drawer__inner">
+          <button type="button" class="drawer__close" id="drawer-close" data-i18n-attr="aria-label:drawer.close">×</button>
+          <div id="drawer-body"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- FONTES -->
+    <section class="section" id="fontes" aria-labelledby="src-h">
+      <div class="prose">
+        <h2 id="src-h" data-i18n="src.h">De onde vem cada ideia</h2>
+        <p data-i18n="src.p">Os trabalhos em que esta pesquisa se apoia, e o que cada um contribuiu.</p>
+      </div>
+      <ul class="refs" id="refs"></ul>
+    </section>
+
+    <!-- SOBRE -->
+    <section class="section section--about" id="sobre" aria-labelledby="about-h">
+      <div class="about">
+        <div class="prose">
+          <h2 id="about-h" data-i18n="about.h">Sobre a pesquisa</h2>
+          <p data-i18n="about.p1"></p>
+          <p data-i18n="about.p2"></p>
+          <p class="about__links">
+            <a class="btn" href="https://github.com/EnzoRDTA/AstroML" data-i18n="about.code">Código e dados no GitHub</a>
+          </p>
+        </div>
+        <div class="about__side">
+          <h3 data-i18n="monitor.h">Monitor do catálogo</h3>
+          <p data-i18n="monitor.p">A cada semana o catálogo é baixado de novo e auditado com o mesmo código.</p>
+          <dl class="facts" id="monitor-facts"></dl>
+          <div class="chart" id="monitor-chart"></div>
+        </div>
+      </div>
+      <div class="cite">
+        <h3 data-i18n="cite.h">Como citar</h3>
+        <p id="cite-text"></p>
+        <h3 data-i18n="ack.h">Agradecimento ao arquivo</h3>
+        <p lang="en">This research has made use of the NASA Exoplanet Archive, which is operated by the California Institute of Technology, under contract with the National Aeronautics and Space Administration under the Exoplanet Exploration Program.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p data-i18n="footer">Além da Curva. Pesquisa independente, sem vínculo oficial com a NASA ou o Caltech.</p>
+  </footer>
+
+  <div class="tooltip" id="tooltip" role="status" hidden></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
