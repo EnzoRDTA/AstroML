@@ -5,5 +5,12 @@
   "mass_calc_pct": 46.9,
   "radius_calc_pct": 24.2,
   "n_clean": 1566
+ },
+ {
+  "date": "2026-10-08",
+  "n_planets": 6445,
+  "mass_calc_pct": 47.3,
+  "radius_calc_pct": 24.0,
+  "n_clean": 1576
  }
 ]
