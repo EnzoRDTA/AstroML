@@ -99,7 +99,7 @@ export function initExplorer() {
           }
           const active = sort.key === key;
           th.setAttribute("aria-sort", active ? (sort.dir === 1 ? "ascending" : "descending") : "none");
-          const b = el("button", { type: "button", class: "sort" }, t(label), el("span", { class: "sort__icon", "aria-hidden": "true" }, active ? (sort.dir === 1 ? "▲" : "▼") : ""));
+          const b = el("button", { type: "button", class: "sort" }, el("span", {}, t(label)), el("span", { class: "sort__icon", "aria-hidden": "true" }, active ? (sort.dir === 1 ? "▲" : "▼") : ""));
           b.addEventListener("click", () => {
             sort = { key, dir: active ? ((-sort.dir) as 1 | -1) : 1 };
             filter();
