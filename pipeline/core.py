@@ -302,8 +302,36 @@ def models(clean: pd.DataFrame, n_splits=10) -> dict:
                 Fg[:, 0] = g
                 pd_curve.append(float(mdl.predict(Fg).mean()))
             c[k] = pd_curve
+        # Modelo 2: reta com luz e metalicidade, nas medianas
+        b2 = ols(np.column_stack([np.ones_like(x), x, cc["lS"].values, cc["fe"].values]), y)
+        c["m2"] = (b2[0] + b2[1] * grid + b2[2] * lS_med + b2[3] * fe_med).tolist()
+        # florestas com dados da estrela (período, massa e temperatura da estrela)
+        ext_cols = ["pl_orbper", "st_mass", "st_teff"]
+        if all(col in cc.columns for col in ext_cols):
+            ce = cc.dropna(subset=ext_cols)
+            ce = ce[ce["pl_orbper"] > 0]
+            Fe = np.column_stack([ce[xc].values, ce["lS"].values, ce["fe"].values,
+                                  np.log10(ce["pl_orbper"].values), ce["st_mass"].values, ce["st_teff"].values])
+            ye = ce[yc].values
+            ext = {
+                "rf_ext": RandomForestRegressor(n_estimators=200, max_features=0.6, min_samples_leaf=10,
+                                                random_state=SEED, n_jobs=-1).fit(Fe, ye),
+                "gb_ext": HistGradientBoostingRegressor(max_leaf_nodes=5, learning_rate=0.05, max_iter=300,
+                                                        random_state=SEED).fit(Fe, ye),
+            }
+            for k, mdl in ext.items():
+                pd_curve = []
+                for g in grid:
+                    Fg = Fe.copy()
+                    Fg[:, 0] = g
+                    pd_curve.append(float(mdl.predict(Fg).mean()))
+                c[k] = pd_curve
         if name == "radius_from_mass":
             c["ck"] = np.log10(ck_radius(10 ** grid)).tolist()
+            # quebrada com as quebras fixas de Chen e Kipping
+            k1, k2 = np.log10(2.04), np.log10(131.58)
+            bref = ols(design_broken(x, k1, k2), y)
+            c["m3_ref"] = (design_broken(grid, k1, k2) @ bref).tolist()
         curves[name] = {k: [round(v, 4) for v in vals] for k, vals in c.items()}
     out["fits"] = full
     out["cv"] = cv
