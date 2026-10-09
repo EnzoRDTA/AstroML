@@ -27,10 +27,13 @@ export function initMeasure() {
   let W = 320;
   let H = 300;
 
-  const heightFor = (m: Method, w: number) =>
-    w < 600
-      ? Math.round(Math.min({ transit: 270, rv: 380, micro: 290, img: 270 }[m], Math.max(230, stableVH() * 0.42)))
-      : m === "transit" ? 320 : m === "rv" ? 440 : m === "micro" ? 340 : 340;
+  // a velocidade radial precisa de 440 px (órbita, espectro e curva de velocidade)
+  const heightFor = (m: Method, _w: number) =>
+    m === "rv"
+      ? 440
+      : innerWidth < 900
+        ? Math.round(Math.min({ transit: 270, micro: 300, img: 270 }[m], Math.max(240, stableVH() * 0.42)))
+        : { transit: 320, micro: 340, img: 340 }[m];
 
   function fit() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
