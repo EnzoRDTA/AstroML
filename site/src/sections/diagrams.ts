@@ -2,7 +2,7 @@ import type { Dataset } from "../data";
 import { ckRadius, predictBroken, SOLAR } from "../data";
 import { t } from "../i18n";
 import { curveOverlay, labelOverlay, Scatter, type AxisSpec, type Overlay } from "../charts/scatter";
-import { css, el, fmt, fmtFixed, fmtInt } from "../util";
+import { css, el, fmt, fmtFixed, fmtInt, stableVH } from "../util";
 import { REGIME_VARS, regimeAlpha, regimeLegend, regimeOf, type RegimeState } from "../charts/regimes";
 
 export const MASS_AXIS: AxisSpec = {
@@ -65,7 +65,7 @@ export function heroChart(container: HTMLElement, d: Dataset, onPick: (i: number
     y: RADIUS_AXIS,
     xs: p.mass,
     ys: p.radius,
-    height: (w) => Math.max(360, Math.min(w * 0.78, window.innerHeight * 0.72)),
+    height: (w) => Math.max(360, Math.min(w * 0.78, stableVH() * 0.72)),
     tooltip: (i) => planetTip(d, i),
     onClick: onPick,
     compactAxes: true,
@@ -99,7 +99,7 @@ export function storyChart(container: HTMLElement, legend: HTMLElement, d: Datas
     // no celular o gráfico divide a tela com o texto, por isso fica mais baixo
     height: (w) =>
       window.innerWidth < 900
-        ? Math.max(230, Math.min(w * 0.8, window.innerHeight * 0.36))
+        ? Math.max(230, Math.min(w * 0.8, stableVH() * 0.36))
         : Math.max(320, Math.min(w * 0.72, window.innerHeight * 0.7)),
     tooltip: (i) => planetTip(d, i),
     onClick: onPick,
@@ -221,7 +221,7 @@ export function predictorChart(container: HTMLElement, d: Dataset) {
     y: RADIUS_AXIS,
     xs: p.mass,
     ys: p.radius,
-    height: (w) => Math.max(300, Math.min(w * 0.72, 480)),
+    height: (w) => (innerWidth < 900 ? Math.max(200, Math.min(w * 0.62, stableVH() * 0.32)) : Math.max(300, Math.min(w * 0.72, 480))),
     tooltip: (i) => planetTip(d, i),
     compactAxes: true,
   });

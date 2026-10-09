@@ -1,6 +1,6 @@
 import type { Dataset } from "../data";
 import { t } from "../i18n";
-import { $, css, el, fmtFixed, fmtInt, reducedMotion } from "../util";
+import { $, css, el, fmtFixed, fmtInt, reducedMotion, stableVH } from "../util";
 
 type Method = "transit" | "rv" | "micro" | "img";
 const METHOD_INDEX: Record<Method, number> = { transit: 0, rv: 1, micro: 2, img: 3 };
@@ -28,7 +28,9 @@ export function initMeasure() {
   let H = 300;
 
   const heightFor = (m: Method, w: number) =>
-    m === "transit" ? (w < 480 ? 290 : 320) : m === "rv" ? 440 : m === "micro" ? 340 : w < 480 ? 300 : 340;
+    w < 600
+      ? Math.round(Math.min({ transit: 270, rv: 380, micro: 290, img: 270 }[m], Math.max(230, stableVH() * 0.42)))
+      : m === "transit" ? 320 : m === "rv" ? 440 : m === "micro" ? 340 : 340;
 
   function fit() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -458,6 +460,26 @@ export function initMeasure() {
     const others = n ? n.counts[n.methods[4]].reduce((x, y) => x + y, 0) : 0;
     $("#methods-note").textContent = t("methods.note", { n: fmtInt(others) });
   }
+
+  // no celular, deslizar sobre a demonstração troca de método
+  let sx = 0,
+    sy = 0,
+    st = 0;
+  canvas.addEventListener("pointerdown", (e) => {
+    sx = e.clientX;
+    sy = e.clientY;
+    st = performance.now();
+  });
+  canvas.addEventListener("pointerup", (e) => {
+    const dx = e.clientX - sx;
+    const dy = e.clientY - sy;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5 && performance.now() - st < 800) {
+      const i = ORDER.indexOf(method);
+      const j = (i + (dx < 0 ? 1 : -1) + ORDER.length) % ORDER.length;
+      method = ORDER[j];
+      panel();
+    }
+  });
 
   range.addEventListener("input", () => {
     values[method] = +range.value;

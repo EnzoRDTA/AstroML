@@ -67,3 +67,17 @@ export function earthify(root: Node) {
 function escapeHtml(s: string) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 }
+
+/**
+ * Altura de tela estável: no celular a barra do navegador some ao rolar e
+ * muda innerHeight; só recalculamos quando a largura muda (giro da tela).
+ */
+let vhW = 0;
+let vhH = 0;
+export function stableVH(): number {
+  if (innerWidth !== vhW || !vhH) {
+    vhW = innerWidth;
+    vhH = innerHeight;
+  }
+  return vhH;
+}

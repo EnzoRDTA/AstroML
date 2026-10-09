@@ -2,7 +2,7 @@ import type { Dataset, Direction, Paper, Segment } from "../data";
 import { t } from "../i18n";
 import { Scatter, type Overlay } from "../charts/scatter";
 import { REGIME_VARS, regimeAlpha, regimeLegend, regimeOf, type RegimeState } from "../charts/regimes";
-import { $, css, earthify, el, fmt, fmtFixed, fmtInt } from "../util";
+import { $, css, earthify, el, fmt, fmtFixed, fmtInt, stableVH } from "../util";
 import { MASS_AXIS, RADIUS_AXIS, isCalc, planetTip } from "./diagrams";
 
 type Row = { model: string; rmse: number; frac?: number };
@@ -221,7 +221,7 @@ export function initResults(onPick: (i: number) => void) {
       y: RADIUS_AXIS,
       xs: p.mass,
       ys: p.radius,
-      height: (w) => Math.max(320, Math.min(w * 0.68, 520)),
+      height: (w) => (innerWidth < 900 ? Math.max(210, Math.min(w * 0.64, stableVH() * 0.32)) : Math.max(320, Math.min(w * 0.68, 520))),
       tooltip: (i) => planetTip(d, i),
       onClick: onPick,
       compactAxes: true,
