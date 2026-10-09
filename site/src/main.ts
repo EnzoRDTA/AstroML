@@ -10,6 +10,9 @@ import { initPredictor } from "./sections/predictor";
 import { initExplorer } from "./sections/explorer";
 import { initResults } from "./sections/results";
 import { currentPage, initRouter, onPage, refreshRouterText } from "./router";
+import { initSky } from "./sky";
+
+initSky();
 
 const REFS = [
   { key: "mayor", cite: "Mayor & Queloz (1995)", where: "Nature 378, 355", doi: "10.1038/378355a0" },
@@ -96,7 +99,7 @@ function renderRefs() {
       return el(
         "li",
         { class: "ref" },
-        el("p", { class: "ref__cite" }, el("a", { href, target: "_blank", rel: "noopener" }, r.cite), el("span", { class: "ref__where" }, r.where)),
+        el("p", { class: "ref__cite" }, el("a", { href, target: "_blank", rel: "noopener noreferrer" }, r.cite), el("span", { class: "ref__where" }, r.where)),
         el("p", { class: "ref__text" }, t(`ref.${r.key}`)),
       );
     }),
@@ -194,8 +197,15 @@ function initStoryObserver() {
       story?.go(k);
     }
     const cap = document.getElementById("story-caption")!;
-    const html = `<span class="scrolly__count">${k + 1} / ${steps.length}</span>` + steps[k].querySelector("p")!.innerHTML;
-    if (cap.innerHTML !== html) cap.innerHTML = html;
+    // copia o passo atual como nós (sem innerHTML)
+    const key = `${k}|${steps[k].textContent}`;
+    if (cap.dataset.key !== key) {
+      cap.dataset.key = key;
+      const count = document.createElement("span");
+      count.className = "scrolly__count";
+      count.textContent = `${k + 1} / ${steps.length}`;
+      cap.replaceChildren(count, ...Array.from(steps[k].querySelector("p")!.cloneNode(true).childNodes));
+    }
   };
   const onScroll = () => {
     if (!ticking) {

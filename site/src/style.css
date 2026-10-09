@@ -5,9 +5,11 @@
    Interface: azul-noite, branco frio e um único destaque gelo para o que é interativo. */
 :root {
   color-scheme: dark;
-  --void: #060b16;      /* L0, canvas */
-  --deep: #0c1424;      /* L1, painéis */
-  --panel: #121c31;     /* L2, hover e sobreposições */
+  --void: #04060e;      /* L0, céu */
+  --deep: #0a1122;      /* L1, painéis */
+  --panel: #111b33;     /* L2, hover e sobreposições */
+  --deep-a: rgba(10, 17, 34, 0.9);
+  --plate: rgba(4, 6, 14, 0.88);
   --rule: rgba(231, 237, 246, 0.09);
   --rule-strong: rgba(231, 237, 246, 0.18);
   --star: #e7edf6;      /* texto principal */
@@ -170,7 +172,7 @@ sub {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: var(--void);
+  background: rgba(4, 6, 14, 0.94);
   border-bottom: 1px solid var(--rule);
   font-family: var(--sans);
 }
@@ -422,6 +424,10 @@ sub {
 .chart {
   position: relative;
   width: 100%;
+  /* placa escura sob cada gráfico: as estrelas do fundo nunca se misturam aos dados */
+  background: var(--plate);
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px var(--rule), 0 20px 50px -30px rgba(40, 70, 140, 0.45);
 }
 .chart canvas {
   display: block;
@@ -565,7 +571,7 @@ svg .row:hover circle {
   }
 }
 .instrument {
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule);
   box-shadow: var(--edge);
   border-radius: var(--radius);
@@ -696,7 +702,7 @@ input[type="range"] {
   }
   .step:first-child { min-height: 60vh; }
   .step p {
-    background: var(--deep);
+    background: var(--deep-a);
     border: 1px solid var(--rule);
     border-left: 3px solid var(--rule-strong);
     border-radius: var(--radius);
@@ -810,7 +816,7 @@ input[type="range"] {
 
 .note-card {
   margin-top: 56px;
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule);
   box-shadow: var(--edge);
   border-radius: var(--radius);
@@ -999,7 +1005,7 @@ input[type="range"] {
 .presets button {
   font: 500 14px var(--sans);
   color: var(--star);
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
   padding: 8px 14px;
@@ -1130,7 +1136,7 @@ input[type="range"] {
 .table-wrap {
   overflow-x: auto;
   margin-top: 12px;
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   box-shadow: var(--edge);
@@ -1364,7 +1370,7 @@ input[type="range"] {
   }
 }
 .about__side {
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule);
   box-shadow: var(--edge);
   border-radius: var(--radius);
@@ -1544,7 +1550,7 @@ main {
   gap: 8px;
   height: 100%;
   padding: 20px;
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   box-shadow: var(--edge);
@@ -1643,7 +1649,7 @@ main {
   padding: 6px 12px;
   font: 500 14px var(--sans);
   color: var(--star);
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
   cursor: pointer;
@@ -1735,7 +1741,7 @@ main {
   flex-direction: column;
   border: 1px solid var(--rule);
   border-radius: var(--radius);
-  background: var(--deep);
+  background: var(--deep-a);
   box-shadow: var(--edge);
   overflow: hidden;
 }
@@ -1832,7 +1838,7 @@ main {
 .lab__desc {
   margin-top: 16px;
   padding: 20px;
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   box-shadow: var(--edge);
@@ -1950,7 +1956,7 @@ main {
 #methods-tabs {
   display: flex;
   flex-direction: column;
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   box-shadow: var(--edge);
@@ -2038,7 +2044,7 @@ main {
 }
 
 .methods__panel {
-  background: var(--deep);
+  background: var(--deep-a);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   box-shadow: var(--edge);
@@ -2248,7 +2254,7 @@ svg.earth {
   .mtab__pct { font-size: 14px; }
   .demo {
     order: 3;
-    background: var(--deep);
+    background: var(--deep-a);
     border: 1px solid var(--rule);
     border-radius: 0 0 var(--radius) var(--radius);
     padding: 12px 12px 10px;
@@ -2327,7 +2333,7 @@ svg.earth {
     flex: 0 0 82%;
     scroll-snap-align: start;
     padding: 16px 18px;
-    background: var(--deep);
+    background: var(--deep-a);
     border: 1px solid var(--rule);
     border-radius: var(--radius);
   }
@@ -2400,4 +2406,31 @@ svg.earth {
   .legend-row--toggles { flex-wrap: wrap; gap: 6px; }
   .legend-row--toggles .toggle { padding: 5px 8px; gap: 6px; font-size: 13px; }
   .legend-row--toggles .toggle__n { display: none; }
+}
+
+/* =========================================================== céu */
+.sky {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
+}
+.sky canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+body {
+  background:
+    radial-gradient(120% 80% at 85% -10%, rgba(52, 72, 140, 0.18), transparent 60%),
+    radial-gradient(90% 70% at 0% 110%, rgba(86, 52, 120, 0.12), transparent 60%),
+    var(--void);
+  background-attachment: fixed;
+}
+
+/* fundo das demonstrações: um pedaço de céu profundo */
+.demo canvas {
+  background: radial-gradient(120% 90% at 50% 20%, rgba(36, 52, 98, 0.35), transparent 70%), #03050c;
+  border-radius: 6px;
 }

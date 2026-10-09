@@ -157,7 +157,13 @@ export function initExplorer() {
   download.addEventListener("click", () => {
     const p = d.planets;
     const head = ["pl_name", "hostname", "disc_year", "method", "mass_earth", "mass_err_hi", "mass_err_lo", "mass_calculated", "radius_earth", "radius_err_hi", "radius_err_lo", "radius_calculated", "clean_sample"];
-    const q = (v: unknown) => (v == null ? "" : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+    // texto que começa com = + - @ vira fórmula em planilhas: prefixa com apóstrofo
+    const q = (v: unknown) => {
+      if (v == null) return "";
+      let s = String(v);
+      if (typeof v === "string" && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
     const lines = rows.map((i) =>
       [p.name[i], p.host[i], p.year[i], t(`method.${p.method[i]}`), p.mass[i], p.mass_hi[i], p.mass_lo[i], p.mass_calc[i], p.radius[i], p.radius_hi[i], p.radius_lo[i], p.radius_calc[i], p.clean[i]].map(q).join(","),
     );
@@ -166,6 +172,7 @@ export function initExplorer() {
     document.body.append(a);
     a.click();
     a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
   let timer = 0;
   search.addEventListener("input", () => {
@@ -216,7 +223,7 @@ export function initExplorer() {
       el("h4", {}, t("drawer.curve")),
       el("p", {}, curveText),
       why.length ? el("p", { class: "muted" }, t("drawer.notClean", { why: why.join("; ") })) : "",
-      el("p", {}, el("a", { href: `https://exoplanetarchive.ipac.caltech.edu/overview/${encodeURIComponent(p.name[i])}`, target: "_blank", rel: "noopener" }, t("drawer.archive"))),
+      el("p", {}, el("a", { href: `https://exoplanetarchive.ipac.caltech.edu/overview/${encodeURIComponent(p.name[i])}`, target: "_blank", rel: "noopener noreferrer" }, t("drawer.archive"))),
     );
     earthify(drawerBody);
     drawer.hidden = false;

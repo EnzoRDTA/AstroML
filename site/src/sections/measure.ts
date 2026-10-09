@@ -56,10 +56,26 @@ export function initMeasure() {
   };
   const starGradient = (x: number, y: number, r: number) => {
     const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
-    g.addColorStop(0, "#FFFBEF");
-    g.addColorStop(0.65, "#F6E3A8");
-    g.addColorStop(1, "#E4B65C");
+    g.addColorStop(0, "#FFFDF6");
+    g.addColorStop(0.45, "#FBEFC6");
+    g.addColorStop(0.82, "#F0C878");
+    g.addColorStop(1, "#C98A3A");
     return g;
+  };
+  /** Estrela com coroa difusa e escurecimento de borda (o centro do disco é mais claro). */
+  const drawStar = (x: number, y: number, r: number, glow = 2.6) => {
+    const halo = ctx.createRadialGradient(x, y, r * 0.8, x, y, r * glow);
+    halo.addColorStop(0, "rgba(255,214,140,0.30)");
+    halo.addColorStop(0.4, "rgba(255,190,110,0.09)");
+    halo.addColorStop(1, "rgba(255,190,110,0)");
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(x, y, r * glow, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = starGradient(x, y, r);
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
   };
   const sizeWord = (v: number) => t(v <= 3 ? "rv.small" : v <= 7 ? "rv.medium" : "rv.large");
   const hline = (x0: number, x1: number, y: number, color = css("--rule")) => {
@@ -102,17 +118,15 @@ export function initMeasure() {
     const cx = W / 2;
     const cy = 76;
     const R = Math.min(56, W * 0.15);
-    ctx.fillStyle = starGradient(cx, cy, R);
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.fill();
+    drawStar(cx, cy, R, 1.7);
     const span = 1 + rho + 0.35;
     const py = 0.2;
     const u = (clock / 7) % 1;
     const px = -span + 2 * span * u;
-    ctx.fillStyle = css("--void");
-    ctx.strokeStyle = css("--measured");
-    ctx.lineWidth = 1.5;
+    // planeta: silhueta escura com um fio de atmosfera iluminada
+    ctx.fillStyle = "#03050b";
+    ctx.strokeStyle = "rgba(140,207,255,0.75)";
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     ctx.arc(cx + px * R, cy + py * R, Math.max(rho * R, 1.5), 0, Math.PI * 2);
     ctx.fill();
@@ -133,7 +147,10 @@ export function initMeasure() {
     text(t("transit.brightness"), L, T - 12, css("--dust"), "left", 12);
     text(t("transit.time"), Rr, B + 20, css("--dust"), "right", 12);
     const val = (uu: number) => 1 - overlap(1, rho, Math.hypot(-span + 2 * span * uu, py)) / Math.PI;
+    ctx.shadowColor = "rgba(61,155,233,0.7)";
+    ctx.shadowBlur = 8;
     curve(240, (k) => X(k / 240), (k) => Y(val(k / 240)), css("--measured"));
+    ctx.shadowBlur = 0;
     dot(X(u), Y(val(u)));
     const drop = rho * rho * 100;
     return {
@@ -162,10 +179,7 @@ export function initMeasure() {
     ctx.stroke();
     const sx = cx - starR * Math.cos(th);
     const sy = cy - starR * Math.sin(th);
-    ctx.fillStyle = starGradient(sx, sy, 13);
-    ctx.beginPath();
-    ctx.arc(sx, sy, 12, 0, Math.PI * 2);
-    ctx.fill();
+    drawStar(sx, sy, 12, 2.4);
     dot(cx + a * Math.cos(th), cy + a * Math.sin(th), 5, css("--measured"));
 
     // observador
@@ -306,7 +320,6 @@ export function initMeasure() {
   });
   function drawImaging() {
     const on = values.img === 1;
-    field.forEach((s) => dot(s.x * W, s.y * H, 0.8, `rgba(231,237,246,${s.a})`));
     const cx = W / 2;
     const cy = H / 2 - 6;
     const rx = Math.min(130, W * 0.36);
@@ -362,6 +375,7 @@ export function initMeasure() {
   /* ----------------------------------------------------------------- quadro */
   function draw() {
     ctx.clearRect(0, 0, W, H);
+    field.forEach((s) => dot(s.x * W, s.y * H, 0.7, `rgba(231,237,246,${(s.a * (method === "img" ? 1 : 0.55)).toFixed(2)})`));
     const r = method === "transit" ? drawTransit() : method === "rv" ? drawRV() : method === "micro" ? drawMicro() : drawImaging();
     $("#demo-range-out").textContent = r.out;
     const ro = $("#demo-readout");
@@ -376,7 +390,7 @@ export function initMeasure() {
   }
   new IntersectionObserver((entries) => {
     visible = entries.some((e) => e.isIntersecting);
-  }).observe($("#methods-panel"));
+  }).observe($(".demo"));
 
   /* ------------------------------------------------------------ abas e textos */
   function panel() {
