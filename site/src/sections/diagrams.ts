@@ -221,7 +221,7 @@ export function predictorChart(container: HTMLElement, d: Dataset) {
     y: RADIUS_AXIS,
     xs: p.mass,
     ys: p.radius,
-    height: (w) => (innerWidth < 900 ? Math.max(200, Math.min(w * 0.62, stableVH() * 0.32)) : Math.max(300, Math.min(w * 0.72, 480))),
+    height: (w) => (innerWidth < 900 ? Math.max(170, Math.min(w * 0.5, stableVH() * 0.24)) : Math.max(300, Math.min(w * 0.72, 480))),
     tooltip: (i) => planetTip(d, i),
     compactAxes: true,
   });
