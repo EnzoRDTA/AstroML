@@ -2568,3 +2568,48 @@ body {
   .switch { font-size: 14px; }
   .inst__text { font-size: 14px; }
 }
+
+/* ====== desktop: ferramentas cabem numa tela (controle e resultado juntos) */
+@media (min-width: 901px) {
+  .section { padding-top: clamp(32px, 4vw, 56px); }
+  .predictor {
+    grid-template-areas: "form out";
+    margin-top: 28px;
+  }
+  .predictor__out {
+    grid-area: out;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .predictor__result {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: end;
+    gap: 2px 20px;
+  }
+  .predictor__result .result__label { grid-column: 1 / -1; margin: 0; }
+  .predictor__result .result__value { margin: 0; }
+  .predictor__result .result__range { margin: 0 0 6px; }
+  .predictor__result .facts {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 18px;
+    margin: 4px 0 0;
+    font-size: 13px;
+  }
+  .predictor__result .facts dt,
+  .predictor__result .facts dd { border: 0; padding: 0; margin: 0; }
+  .predictor__result .facts dt { color: var(--dust); }
+  .predictor__result .facts dd { margin-right: 8px; }
+  .res-bar { margin-top: 32px; }
+  .lab { margin-top: 20px; }
+  .lab__main {
+    position: sticky;
+    top: calc(var(--topbar-h) + 76px);
+  }
+}
+@media (min-width: 901px) and (max-height: 560px) {
+  .lab__main { position: static; }
+}
