@@ -35,15 +35,20 @@ export function initMeasure() {
         ? Math.round(Math.min({ transit: 270, micro: 300, img: 270 }[m], Math.max(240, stableVH() * 0.42)))
         : { transit: 320, micro: 340, img: 340 }[m];
 
+  // no computador, o desenho inteiro encolhe para a ferramenta caber numa tela
+  let K = 1;
   function fit() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = canvas.clientWidth || 320;
-    H = heightFor(method, W);
-    canvas.style.height = `${H}px`;
-    canvas.width = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
+    const cw = canvas.clientWidth || 320;
+    const base = heightFor(method, cw);
+    K = innerWidth >= 900 ? Math.max(0.62, Math.min(1, (stableVH() - (document.querySelector<HTMLElement>(".topbar")?.offsetHeight ?? 57) - 180) / base)) : 1;
+    W = cw / K;
+    H = base;
+    canvas.style.height = `${Math.round(base * K)}px`;
+    canvas.width = Math.round(cw * dpr);
+    canvas.height = Math.round(base * K * dpr);
     ctx = canvas.getContext("2d")!;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.setTransform(dpr * K, 0, 0, dpr * K, 0, 0);
   }
   new ResizeObserver(() => {
     fit();

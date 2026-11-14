@@ -172,7 +172,7 @@ export function whyChart(container: HTMLElement, legend: HTMLElement, d: Dataset
     y: { type: "linear", domain: [-0.85, 0.85], ticks: [-0.8, -0.4, 0, 0.4, 0.8], label: () => t("axis.resid") },
     xs: p.insol,
     ys,
-    height: (w) => Math.max(300, Math.min(w * 0.5, 460)),
+    height: (w) => Math.max(240, Math.min(w * 0.42, stableVH() - 260, 380)),
     tooltip: (i) => planetTip(d, i),
     onClick: onPick,
   });
