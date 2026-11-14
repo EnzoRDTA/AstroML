@@ -65,7 +65,7 @@ export function heroChart(container: HTMLElement, d: Dataset, onPick: (i: number
     y: RADIUS_AXIS,
     xs: p.mass,
     ys: p.radius,
-    height: (w) => Math.max(320, Math.min(w * 0.72, stableVH() * 0.62, 560)),
+    height: (w) => Math.max(320, Math.min(w * 0.72, stableVH() * 0.58, 480)),
     tooltip: (i) => planetTip(d, i),
     onClick: onPick,
     compactAxes: true,
@@ -221,7 +221,7 @@ export function predictorChart(container: HTMLElement, d: Dataset) {
     y: RADIUS_AXIS,
     xs: p.mass,
     ys: p.radius,
-    height: (w) => (innerWidth < 900 ? Math.max(170, Math.min(w * 0.5, stableVH() * 0.24)) : Math.max(300, Math.min(w * 0.72, 480))),
+    height: (w) => (innerWidth < 900 ? Math.max(170, Math.min(w * 0.5, stableVH() * 0.24)) : Math.max(280, Math.min(w * 0.7, 420))),
     tooltip: (i) => planetTip(d, i),
     compactAxes: true,
   });

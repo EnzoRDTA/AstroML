@@ -2477,3 +2477,51 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .btn:active, .path a:hover { transform: none; }
 }
+
+/* ====== desktop: escala compacta (só telas largas; o celular fica como está) */
+@media (min-width: 901px) {
+  :root { --container: 1080px; }
+  .topnav a { white-space: nowrap; }
+  body { font-size: 15px; }
+  h2 { font-size: clamp(25px, 3.17vw, 36px); }
+  h3 { font-size: 16px; }
+  h4 { font-size: 14px; }
+  .wordmark { font-size: 14px; }
+  .topnav a { font-size: 14px; }
+  .hero__title { font-size: clamp(33px, 4.40vw, 58px); }
+  .hero__lede { font-size: clamp(15px, 1.19vw, 16px); }
+  .btn { font-size: 14px; }
+  .prose > p { font-size: 16px; }
+  .figure__head p { font-size: 14px; }
+  .figure__note { font-size: 14px; }
+  .instrument > p { font-size: 14px; }
+  .step p { font-size: 17px; }
+  .note-card > p { font-size: 14px; }
+  .field input[type="number"] { font-size: 18px; }
+  .result__value { font-size: clamp(30px, 3.70vw, 40px); }
+  .hr__value { font-size: clamp(26px, 2.99vw, 36px); }
+  .hr__text { font-size: 14px; }
+  .data-table { font-size: 14px; }
+  .drawer__inner { font-size: 14px; }
+  .drawer__close { font-size: 20px; }
+  .drawer__title { font-size: 21px; }
+  .ref__cite { font-size: 14px; }
+  .ref__text { font-size: 14px; }
+  .about__side > p { font-size: 14px; }
+  .path__t { font-size: 18px; }
+  .pager__dir { font-size: 14px; }
+  .pager__title { font-size: clamp(21px, 3.52vw, 29px); }
+  .pager__arrow { font-size: 18px; }
+  .segmented--inline span { font-size: 14px; }
+  .lab__p { font-size: 14px; }
+  .model { font-size: 14px; }
+  .lab__title { font-size: 16px; }
+  .lab__desc > p { font-size: 14px; }
+  .dec-row__label { font-size: 14px; }
+  .methods__label { font-size: 14px; }
+  .mtab__name { font-size: 14px; }
+  .demo__text h3 { font-size: 20px; }
+  .demo__text > p { font-size: 14px; }
+  .switch { font-size: 14px; }
+  .inst__text { font-size: 14px; }
+}

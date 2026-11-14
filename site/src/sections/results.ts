@@ -221,7 +221,7 @@ export function initResults(onPick: (i: number) => void) {
       y: RADIUS_AXIS,
       xs: p.mass,
       ys: p.radius,
-      height: (w) => (innerWidth < 900 ? Math.max(210, Math.min(w * 0.64, stableVH() * 0.32)) : Math.max(320, Math.min(w * 0.68, 520))),
+      height: (w) => (innerWidth < 900 ? Math.max(210, Math.min(w * 0.64, stableVH() * 0.32)) : Math.max(300, Math.min(w * 0.66, 460))),
       tooltip: (i) => planetTip(d, i),
       onClick: onPick,
       compactAxes: true,
