@@ -2605,10 +2605,27 @@ body {
   .predictor__result .facts dd { margin-right: 8px; }
   .res-bar { margin-top: 32px; }
   .lab { margin-top: 20px; }
+  .res-bar { position: static; padding: 0 0 12px; }
+  .lab { gap: clamp(20px, 3vw, 40px); }
   .lab__main {
     position: sticky;
-    top: calc(var(--topbar-h) + 76px);
+    top: calc(var(--topbar-h) + 12px);
   }
+  .lab__p { display: none; }
+  .lab__listlabel { margin: 10px 0 6px; font-size: 13px; }
+  .model {
+    grid-template-columns: minmax(0, 1fr) minmax(60px, 26%) 50px;
+    padding: 7px 12px;
+    font-size: 14px;
+    min-height: 36px;
+  }
+  .model__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #cv-note { font-size: 13px; margin-top: 8px; }
+  .lab__legend .legend-row { margin: 0 0 6px; }
+  .lab__desc { margin-top: 10px; padding: 12px 16px; }
+  .lab__desc .lab__title { font-size: 15px; margin-bottom: 2px; }
+  .lab__desc > p { font-size: 14px; margin-bottom: 6px; }
+  .lab__desc .facts { font-size: 13px; }
 }
 @media (min-width: 901px) and (max-height: 560px) {
   .lab__main { position: static; }

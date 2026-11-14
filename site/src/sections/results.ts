@@ -13,6 +13,9 @@ export function initResults(onPick: (i: number) => void) {
   let paper!: Paper;
   let dir: Direction = "mass_from_radius";
   let selected = "m3";
+  // passar o mouse numa linha mostra a curva antes de escolher
+  let preview: string | null = null;
+  const cur = () => preview ?? selected;
   let regimes: RegimeState = { visible: [true, true, true], hover: null };
   let lab: Scatter | null = null;
   let cont: Scatter | null = null;
@@ -82,7 +85,7 @@ export function initResults(onPick: (i: number) => void) {
           updateLab(true);
           describe();
         });
-        return el(
+        const row = el(
           "label",
           { class: `model${r.model === "ck" ? " model--ck" : ""}` },
           input,
@@ -95,6 +98,19 @@ export function initResults(onPick: (i: number) => void) {
           ),
           el("span", { class: "model__v" }, `${fmtFixed(f, 2)}×`),
         );
+        row.addEventListener("pointerenter", (e) => {
+          if ((e as PointerEvent).pointerType !== "mouse" || preview === r.model) return;
+          preview = r.model;
+          updateLab(true, 220);
+          describe();
+        });
+        row.addEventListener("pointerleave", (e) => {
+          if ((e as PointerEvent).pointerType !== "mouse" || preview == null) return;
+          preview = null;
+          updateLab(true, 220);
+          describe();
+        });
+        return row;
       }),
     );
     $("#cv-note").textContent = `${live() ? t("cv.note.live", { date: d.date.split("-").reverse().join("/") }) : t("cv.note.paper")} ${t("cv.floorNote", { v: fmtFixed(fl, 2) })}`;
@@ -154,16 +170,16 @@ export function initResults(onPick: (i: number) => void) {
     if (!lab) return;
     const p = d.planets;
     const list = rows();
-    const sel = list.find((r) => r.model === selected);
+    const sel = list.find((r) => r.model === cur());
     const overlays: Overlay[] = [];
-    const band = sel ? bandOverlay(selected, 10 ** sel.rmse) : null;
+    const band = sel ? bandOverlay(cur(), 10 ** sel.rmse) : null;
     if (band) overlays.push(band);
     for (const r of list) {
-      if (r.model === selected) continue;
+      if (r.model === cur()) continue;
       const o = curveOverlay(r.model, css("--dust"), 1.25, 0.55);
       if (o) overlays.push(o);
     }
-    const main = curveOverlay(selected, selected === "ck" ? css("--calculated") : css("--accent"), 2.75, 1);
+    const main = curveOverlay(cur(), cur() === "ck" ? css("--calculated") : css("--accent"), 2.75, 1);
     if (main) overlays.push(main);
     const colors = REGIME_VARS.map(css);
     lab.setStyle(
@@ -182,23 +198,23 @@ export function initResults(onPick: (i: number) => void) {
 
   function keys() {
     $("#lab-keys").replaceChildren(
-      el("span", { class: "key" }, el("i", { class: "line", style: `--c: var(${selected === "ck" ? "--calculated" : "--accent"})` }), el("span", {}, t("lab.selected"))),
+      el("span", { class: "key" }, el("i", { class: "line", style: `--c: var(${cur() === "ck" ? "--calculated" : "--accent"})` }), el("span", {}, t("lab.selected"))),
       el("span", { class: "key" }, el("i", { class: "line line--thin", style: "--c: var(--dust)" }), el("span", {}, t("lab.others"))),
       el("span", { class: "key" }, el("i", { class: "rect", style: "--c: var(--band)" }), el("span", {}, t("legend.band"))),
     );
   }
 
   function describe() {
-    const r = rows().find((x) => x.model === selected);
+    const r = rows().find((x) => x.model === cur());
     if (!r) return;
     const f = 10 ** r.rmse;
-    const hasCurve = !!curves()[selected];
+    const hasCurve = !!curves()[cur()];
     const notes: string[] = [];
     if (!hasCurve) notes.push(t("lab.noCurve"));
-    if (selected === "rf" || selected === "gb") notes.push(t("lab.pd"));
+    if (cur() === "rf" || cur() === "gb") notes.push(t("lab.pd"));
     $("#lab-desc").replaceChildren(
-      el("h4", { class: "lab__title" }, t(`model.${selected}`)),
-      el("p", {}, t(`mdesc.${selected}`)),
+      el("h4", { class: "lab__title" }, t(`model.${cur()}`)),
+      el("p", {}, t(`mdesc.${cur()}`)),
       el(
         "dl",
         { class: "facts facts--row" },
@@ -221,7 +237,7 @@ export function initResults(onPick: (i: number) => void) {
       y: RADIUS_AXIS,
       xs: p.mass,
       ys: p.radius,
-      height: (w) => (innerWidth < 900 ? Math.max(210, Math.min(w * 0.64, stableVH() * 0.32)) : Math.max(260, Math.min(w * 0.66, stableVH() - 370, 460))),
+      height: (w) => (innerWidth < 900 ? Math.max(210, Math.min(w * 0.64, stableVH() * 0.32)) : Math.max(260, Math.min(w * 0.66, stableVH() - 320, 460))),
       tooltip: (i) => planetTip(d, i),
       onClick: onPick,
       compactAxes: true,
