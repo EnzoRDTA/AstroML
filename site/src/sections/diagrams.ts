@@ -65,7 +65,7 @@ export function heroChart(container: HTMLElement, d: Dataset, onPick: (i: number
     y: RADIUS_AXIS,
     xs: p.mass,
     ys: p.radius,
-    height: (w) => Math.max(360, Math.min(w * 0.78, stableVH() * 0.72)),
+    height: (w) => Math.max(320, Math.min(w * 0.72, stableVH() * 0.62, 560)),
     tooltip: (i) => planetTip(d, i),
     onClick: onPick,
     compactAxes: true,
