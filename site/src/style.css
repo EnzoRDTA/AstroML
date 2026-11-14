@@ -2436,3 +2436,44 @@ body {
   background: radial-gradient(120% 90% at 50% 20%, rgba(36, 52, 98, 0.35), transparent 70%), #03050c;
   border-radius: 6px;
 }
+
+/* =========================================================== instituição */
+.inst {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.inst__logo {
+  flex: none;
+  background: #fbfbf8;
+  border-radius: 6px;
+  padding: 3px;
+  box-shadow: 0 0 0 1px var(--rule), 0 8px 24px -12px rgba(140, 207, 255, 0.35);
+}
+.inst--about {
+  margin: 28px 0 4px;
+  padding: 16px 18px;
+  background: var(--deep-a);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  max-width: 560px;
+}
+.inst__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--dust);
+}
+
+/* pequenos acabamentos: resposta ao toque e ao ponteiro */
+.btn {
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform 120ms var(--ease);
+}
+.btn:active { transform: scale(0.97); }
+@media (hover: hover) {
+  .path a { transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+  .path a:hover { transform: translateY(-3px); box-shadow: var(--edge), 0 18px 40px -24px rgba(140, 207, 255, 0.45); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn:active, .path a:hover { transform: none; }
+}
