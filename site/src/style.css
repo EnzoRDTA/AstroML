@@ -2478,6 +2478,49 @@ body {
   .btn:active, .path a:hover { transform: none; }
 }
 
+/* ====== início: bloco centrado na primeira tela, um pouco acima do meio */
+.scroll-cue { display: none; }
+@media (min-width: 901px) {
+  .hero {
+    position: relative;
+    min-height: calc(100svh - var(--topbar-h));
+    align-content: center;
+    padding-top: 24px;
+    padding-bottom: 88px;
+  }
+  .hero__actions { margin-bottom: 28px; }
+  .scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--star);
+    opacity: 0.16;
+    pointer-events: none;
+    transition: opacity 400ms var(--ease);
+  }
+  .scroll-cue__line {
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, transparent, currentColor);
+  }
+  html.is-scrolled .scroll-cue { opacity: 0; }
+}
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .scroll-cue { animation: cue-float 2.8s ease-in-out infinite; }
+  @keyframes cue-float {
+    50% { translate: 0 6px; }
+  }
+}
+@media (min-width: 901px) and (max-height: 620px) {
+  .hero { min-height: 0; }
+  .scroll-cue { display: none; }
+}
+
 /* ====== desktop: escala compacta (só telas largas; o celular fica como está) */
 @media (min-width: 901px) {
   :root { --container: 1080px; }

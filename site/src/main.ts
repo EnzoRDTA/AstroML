@@ -272,3 +272,10 @@ main();
   addEventListener("resize", setH);
   if (bar && "ResizeObserver" in window) new ResizeObserver(setH).observe(bar);
 }
+
+// some o indicador de rolagem do início assim que a pessoa rola
+{
+  const mark = () => document.documentElement.classList.toggle("is-scrolled", scrollY > 40);
+  addEventListener("scroll", mark, { passive: true });
+  mark();
+}
